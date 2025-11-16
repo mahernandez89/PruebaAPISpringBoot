@@ -41,9 +41,9 @@ public class OrderService {
             int qty = i.getQuantity() == null ? 1 : i.getQuantity();
             it.setQuantity(qty);
 
-            // productService.getProductById(...) devuelve Optional<ProductDto> (síncrono)
+            // Uso del helper bloqueante seguro: getProductByIdBlocking
             try {
-                Optional<ProductDto> prodOpt = productService.getProductById(i.getProductId());
+                Optional<ProductDto> prodOpt = productService.getProductByIdBlocking(i.getProductId());
                 if (prodOpt.isPresent()) {
                     ProductDto p = prodOpt.get();
                     it.setTitle(p.getTitle());
@@ -53,7 +53,6 @@ public class OrderService {
                     it.setPrice(0.0);
                 }
             } catch (Exception ex) {
-                // En caso de error al consultar productos, guardamos valores por defecto y registramos el problema
                 log.warn("Error fetching product {}: {}, saving fallback values", i.getProductId(), ex.toString());
                 it.setTitle("Product unknown " + i.getProductId());
                 it.setPrice(0.0);
@@ -62,7 +61,9 @@ public class OrderService {
             return it;
         }).collect(Collectors.toList());
 
-        double total = items.stream().mapToDouble(it -> (it.getPrice() == null ? 0.0 : it.getPrice()) * (it.getQuantity() == null ? 0 : it.getQuantity())).sum();
+        double total = items.stream()
+                .mapToDouble(it -> (it.getPrice() == null ? 0.0 : it.getPrice()) * (it.getQuantity() == null ? 0 : it.getQuantity()))
+                .sum();
         order.setItems(items);
         order.setTotal(total);
         return orderRepository.save(order);
@@ -72,8 +73,9 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public java.util.Optional<Order> getOrder(Long id) {
-        return orderRepository.findById(id);
+    @Transactional(readOnly = true)
+    public Optional<Order> getOrder(Long id) {
+        return orderRepository.findByIdWithItems(id);
     }
 
     @Transactional
