@@ -77,7 +77,6 @@ public class OrderController {
                 .map(paid -> ResponseEntity.ok(Map.of("status", (Object) "OK", "orderId", (Object) paid.getId(), "newStatus", (Object) paid.getStatus())))
                 .onErrorResume(ex -> {
                     log.warn("Error marking order {} as paid: {}", id, ex.getMessage());
-                    // Si la excepción viene de orderService.markPaid lanzando RuntimeException("Order not found")
                     return Mono.just(ResponseEntity.status(400).body(Map.of("status", (Object) 400, "message", (Object) ex.getMessage())));
                 });
     }
