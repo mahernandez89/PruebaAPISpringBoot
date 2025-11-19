@@ -1,5 +1,5 @@
 Prueba técnica para desarrollador backend springboot
-Autor: Miguel Antonio Hernandez Martinez
+Autor: Miguel Antonio Hernandez Martinez - Email: m_hernandez_89@outlook.com
 Realizado el 16/11/2025
 
 API en Java con Spring Boot que integra una API externa de productos (fakestoreapi) y gestiona órdenes, pagos simulados y mapeos de rutas. 
